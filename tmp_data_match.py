@@ -4,6 +4,7 @@ from decimal import Decimal, ROUND_HALF_UP
 import random
 import copy
 import matplotlib.pyplot as plt
+import math
 
 """
 Created on Sat Nov 24 16:42:54 2018
@@ -209,30 +210,33 @@ def calc_dissatisfaction(married, men_dict, women_dict):
 
 
 def daily_exec(l_men, l_women, days, improve_flg):
-    orig_l_key = list(l_men.keys()) + list(l_women.keys())
     orig_l_men = copy.deepcopy(l_men)
     orig_l_women = copy.deepcopy(l_women)
     unmatched_l_men = copy.deepcopy(l_men)
     unmatched_l_women = copy.deepcopy(l_women)
+    tmp_l_men = dict()
+    tmp_l_women = dict()
     daily_dissatisfaction = 0
     total_m_list = []
     for day in range(days):
         daily_l_men = {}
         daily_l_women = {}
         # 残った人達を残日数で割る
-        daily_men_num = len(unmatched_l_men) // (days - day)
-        daily_women_num = len(unmatched_l_women) // (days - day)
+        daily_men_num = int(math.ceil(len(unmatched_l_men) / (days - day)))
+        daily_women_num = int(math.ceil(len(unmatched_l_women) / (days - day)))
         # 一日分の人をランダム抽出
         for i in range(daily_men_num):
             key, val = random.choice(list(unmatched_l_men.items()))
             daily_l_men.update({key: val})
             del unmatched_l_men[key]
+        daily_l_men.update(tmp_l_men)
         daily_l_men = dict(sorted(daily_l_men.items()))
 
         for i in range(daily_women_num):
             key, val = random.choice(list(unmatched_l_women.items()))
             daily_l_women.update({key: val})
             del unmatched_l_women[key]
+        daily_l_women.update(tmp_l_women)
         daily_l_women = dict(sorted(daily_l_women.items()))
 
         # Wiの選好リストに入っていないMiの選好リストを除外
@@ -253,12 +257,14 @@ def daily_exec(l_men, l_women, days, improve_flg):
         # マッチングした人たち
         m_keys = [flatten for inner in total_m_list for flatten in inner]
         # マッチングしなかった人たち
-        unmatched_keys = list(set(orig_l_key) - set(m_keys))
+        unmatched_keys = list(set(list(daily_l_men.keys()) + list(daily_l_women.keys())) - set(m_keys))
+        tmp_l_men.clear()
+        tmp_l_women.clear()
         for unmatched_key in unmatched_keys:
             if 'M' in unmatched_key:
-                unmatched_l_men.update({unmatched_key: l_men[unmatched_key]})
+                tmp_l_men.update({unmatched_key: l_men[unmatched_key]})
             if 'W' in unmatched_key:
-                unmatched_l_women.update({unmatched_key: l_women[unmatched_key]})
+                tmp_l_women.update({unmatched_key: l_women[unmatched_key]})
     l_men.update(orig_l_men)
     l_women.update(orig_l_women)
     return total_m_list, daily_dissatisfaction
@@ -273,19 +279,22 @@ def main():
         x_range = 0
         for day in range(DAYS):
             if DAYS % (day + 1) == 0:
-                s, apparent_s_dissatisfaction = daily_exec(l_men, l_women, day+1, False)
-                m, apparent_m_dissatisfaction = daily_exec(l_men, l_women, day+1, True)
                 print('MEN_PRIORITY:', len(l_men))#男性の数
                 print('MEN_PRIORITY:', l_men)#男性の女性に対する選好リスト
                 print('WOMEN_PRIORITY:', len(l_women))#女性の数
                 print('WOMEN_PRIORITY:', l_women)
                 print("**********************************")
-                print(str(int(DAYS / (day + 1))) + "日ごと")
+                print(str(int(DAYS//(day + 1))) + "日ごと")
+                s, apparent_s_dissatisfaction = daily_exec(l_men, l_women, day+1, False)
+                m, apparent_m_dissatisfaction = daily_exec(l_men, l_women, day+1, True)
                 print("Gale-Shapley：S")
                 print("■ペア")
                 print(s)
                 print("■ペア数")
                 print(len(s))
+                print("■ペアになれなかった人")
+                print(list(set(list(l_men.keys()) + list(l_women.keys())) - set(
+                    [flatten for inner in s for flatten in inner])))
                 print("■不満足度")
                 dissatisfaction_score = calc_dissatisfaction(s, l_men, l_women)
                 print("見かけ", apparent_s_dissatisfaction)
@@ -296,8 +305,11 @@ def main():
                 print(m)
                 print("■ペア数")
                 print(len(m))
+                print("■ペアになれなかった人")
+                print(list(set(list(l_men.keys()) + list(l_women.keys())) - set(
+                    [flatten for inner in s for flatten in inner])))
                 plot_list.append(len(m))
-                xtics.append(str(int(DAYS / (day + 1))))
+                xtics.append(str(int(DAYS//(day + 1))))
                 print("■不満足度")
                 dissatisfaction_score = calc_dissatisfaction(m, l_men, l_women)
                 print("見かけ", apparent_m_dissatisfaction)
