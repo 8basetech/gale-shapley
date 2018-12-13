@@ -4,7 +4,7 @@ from decimal import Decimal, ROUND_HALF_UP
 import random
 import copy
 import matplotlib.pyplot as plt
-
+import pandas as pd
 """
 Created on Sat Nov 24 16:42:54 2018
 
@@ -265,10 +265,12 @@ def daily_exec(l_men, l_women, days, improve_flg):
 
 
 def main():
+    fig, (axS, axM) = plt.subplots(ncols=2, figsize=(12, 4), sharex=True)
     for i in range(10):
         random.seed(i)
         l_men, l_women = create_priority(MEN_NUM, WOMEN_NUM)  # 選好リスト作成
-        plot_list = []
+        plot_s_list = []
+        plot_m_list = []
         xtics = []
         x_range = 0
         for day in range(DAYS):
@@ -286,6 +288,7 @@ def main():
                 print(s)
                 print("■ペア数")
                 print(len(s))
+                plot_s_list.append(len(s))
                 print("■不満足度")
                 dissatisfaction_score = calc_dissatisfaction(s, l_men, l_women)
                 print("見かけ", apparent_s_dissatisfaction)
@@ -296,17 +299,25 @@ def main():
                 print(m)
                 print("■ペア数")
                 print(len(m))
-                plot_list.append(len(m))
+                plot_m_list.append(len(m))
                 xtics.append(str(int(DAYS / (day + 1))))
                 print("■不満足度")
                 dissatisfaction_score = calc_dissatisfaction(m, l_men, l_women)
                 print("見かけ", apparent_m_dissatisfaction)
                 print("実際", dissatisfaction_score)
                 x_range += 1
-        plt.plot(plot_list, label='seed_' + str(i))
-        plt.xticks(range(x_range), xtics)
-    plt.grid()
-    plt.legend()
+        axS.plot(plot_s_list, label='seed_' + str(i))
+        axM.plot(plot_m_list, label='seed_' + str(i))
+    axS.set_title('S', fontdict={'family': 'IPAexGothic'})
+    axS.set_xlabel('分割日数', fontdict={'family': 'IPAexGothic'})
+    axS.set_ylabel('ペア数', fontdict={'family': 'IPAexGothic'})
+    axM.set_title('M', fontdict={'family': 'IPAexGothic'})
+    axM.set_xlabel('分割日数', fontdict={'family': 'IPAexGothic'})
+    axM.set_ylabel('ペア数', fontdict={'family': 'IPAexGothic'})
+    axS.grid(True)
+    axM.grid(True)
+    plt.xticks(range(x_range), xtics)
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0)
     plt.show()
 
 
