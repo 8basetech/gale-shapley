@@ -6,7 +6,7 @@ import copy
 import matplotlib.pyplot as plt
 import math
 import pandas as pd
-import openpyxl
+
 """
 Created on Sat Nov 24 16:42:54 2018
 
@@ -22,10 +22,10 @@ DAILY_MIN_WOMEN_NUM = 1
 DAILY_MAX_MEN_NUM = 5
 DAILY_MAX_WOMEN_NUM = 5
 random.seed(0)
-#1日あたりの人数を設定　random.random() * DAILY_MAX_MEN_NUM * DAYS=0.0~1.0*5*30人/30日
+# 1日あたりの人数を設定　random.random() * DAILY_MAX_MEN_NUM * DAYS=0.0~1.0*5*30人/30日
 MEN_NUM = int(Decimal(random.random() * DAILY_MAX_MEN_NUM * DAYS).quantize(Decimal('0'), rounding=ROUND_HALF_UP))
 WOMEN_NUM = int(Decimal(random.random() * DAILY_MAX_WOMEN_NUM * DAYS).quantize(Decimal('0'), rounding=ROUND_HALF_UP))
-#0.3 * 5 * 2 = 3人/2日　※1.5人/日　< 一日当たり最小値 * 日数　＝　4人/2日なので、4人/2日を適用
+# 0.3 * 5 * 2 = 3人/2日　※1.5人/日　< 一日当たり最小値 * 日数　＝　4人/2日なので、4人/2日を適用
 if MEN_NUM // DAYS < DAILY_MIN_MEN_NUM:
     MEN_NUM = DAILY_MIN_MEN_NUM * DAYS
 if WOMEN_NUM // DAYS < DAILY_MIN_WOMEN_NUM:
@@ -289,9 +289,9 @@ def main():
             if DAYS % (day + 1) == 0:
                 s, apparent_s_dissatisfaction = daily_exec(l_men, l_women, day+1, False)
                 m, apparent_m_dissatisfaction = daily_exec(l_men, l_women, day+1, True)
-                print('MEN_PRIORITY:', len(l_men))#男性の数
-                print('MEN_PRIORITY:', l_men)#男性の女性に対する選好リスト
-                print('WOMEN_PRIORITY:', len(l_women))#女性の数
+                print('MEN_PRIORITY:', len(l_men))  # 男性の数
+                print('MEN_PRIORITY:', l_men)  # 男性の女性に対する選好リスト
+                print('WOMEN_PRIORITY:', len(l_women))  # 女性の数
                 print('WOMEN_PRIORITY:', l_women)
                 print("**********************************")
                 print(str(int(DAYS / (day + 1))) + "日ごと")
